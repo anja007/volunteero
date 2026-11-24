@@ -1,5 +1,9 @@
 # Volunteero
 
+[![CI/CD](https://github.com/anja007/volunteero/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/anja007/volunteero/actions/workflows/ci-cd.yml)
+
+**Nameščena aplikacija:** https://volunteero-app.netlify.app
+
 Spletna aplikacija, v kateri študentske in druge organizacije objavljajo prostovoljske akcije, študenti pa se nanje prijavljajo. Sistem zazna prekrivanje terminov, vodi čakalno vrsto za polne akcije in študentom samodejno šteje opravljene prostovoljske ure.
 
 Projekt nastaja pri predmetu Razvoj informacijskih rešitev in storitev (RIRS) na FERI, Univerza v Mariboru.
@@ -125,3 +129,20 @@ Repozitorij uporablja **GitHub Flow**: veja `main` je zaščitena, vsaka naloga 
 ## Avtorica
 
 Kristina Andjelkovic
+
+## CI/CD
+
+Cevovod `.github/workflows/ci-cd.yml` (GitHub Actions) se zažene ob vsakem pull requestu v `main` in ob vsakem pushu na `main`.
+
+| Faza | Kaj naredi |
+|---|---|
+| `lint` | ESLint za backend in frontend; ob napaki job pade. |
+| `build` | Namesti odvisnosti (s predpomnjenjem npm) in zgradi frontend z `VITE_API_URL`; rezultat (`frontend/dist`) in backend shrani kot artefakta. |
+| `test` | Zažene teste backenda in frontenda (Node test runner) in shrani poročilo o pokritosti kot artefakt. |
+| `deploy` | Samo ob pushu na `main`, ko uspejo `lint`, `build` in `test`: frontend iz artefakta namesti na Netlify, backend na Render (deploy hook). Uporablja okolje `production` s skrivnostmi. |
+
+- Frontend: https://volunteero-app.netlify.app (Netlify)
+- Backend: https://volunteero.onrender.com/api (Render, brezplačna instanca se po neaktivnosti zbudi v približno minuti)
+- Baza: MongoDB Atlas
+
+Pravilo za zaščito veje `main` zahteva uspešne preverbe `lint`, `build` in `test`, zato pull requesta s padajočim cevovodom ni mogoče združiti.
