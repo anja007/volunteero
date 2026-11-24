@@ -1,4 +1,5 @@
-const API = 'http://localhost:5050/api';
+// URL backenda: na produkciji iz VITE_API_URL, lokalno localhost
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5050/api';
 
 export const STATUSI = {
   ODDANA: 'Oddana',
