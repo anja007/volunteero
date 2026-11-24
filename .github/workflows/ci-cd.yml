@@ -1,0 +1,107 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - name: Backend – namestitev odvisnosti
+        run: npm ci
+        working-directory: backend
+      - name: Backend – ESLint
+        run: npm run lint
+        working-directory: backend
+      - name: Frontend – namestitev odvisnosti
+        run: npm ci
+        working-directory: frontend
+      - name: Frontend – ESLint
+        run: npm run lint
+        working-directory: frontend
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - name: Backend – produkcijske odvisnosti
+        run: npm ci --omit=dev
+        working-directory: backend
+      - name: Frontend – gradnja
+        run: |
+          npm ci
+          npm run build
+        working-directory: frontend
+        env:
+          # URL nameščenega backenda (Settings → Secrets and variables → Actions → Variables)
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+      - name: Artefakt – frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 7
+      - name: Artefakt – backend
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-app
+          path: |
+            backend
+            !backend/node_modules
+            !backend/test
+          retention-days: 7
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - name: Backend – testi s pokritostjo
+        run: |
+          npm ci
+          npm run test:coverage
+        working-directory: backend
+      - name: Frontend – testi s pokritostjo
+        run: |
+          npm ci
+          npm run test:coverage
+        working-directory: frontend
+      - name: Artefakt – poročilo o pokritosti
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            backend/coverage
+            frontend/coverage
+          retention-days: 7
