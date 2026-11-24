@@ -29,3 +29,5 @@ mongoose
   .catch((napaka) => {
     console.error('Napaka pri povezavi z MongoDB:', napaka.message);
   });
+
+  const neuporabljena = 1;
