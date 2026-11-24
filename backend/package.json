@@ -1,26 +1,32 @@
 {
-    "name": "volunteero-backend",
-    "version": "1.0.0",
-    "description": "REST API za aplikacijo Volunteero",
-    "main": "server.js",
-      "scripts": {
+  "name": "volunteero-backend",
+  "version": "1.0.0",
+  "description": "REST API za aplikacijo Volunteero",
+  "main": "server.js",
+  "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "skrbnik": "node scripts/ustvariSkrbnika.js"
+    "skrbnik": "node scripts/ustvariSkrbnika.js",
+    "lint": "eslint .",
+    "test": "node --test \"test/**/*.test.js\"",
+    "test:coverage": "node -e \"require('fs').mkdirSync('coverage',{recursive:true})\" && node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"test/**/*.test.js\""
   },
-    "keywords": [],
-    "author": "Kristina Andjelkovic",
-    "license": "ISC",
-    "type": "commonjs",
-    "dependencies": {
-        "bcryptjs": "^3.0.3",
-        "cors": "^2.8.6",
-        "dotenv": "^18.0.10",
-        "express": "^5.3.0",
-        "jsonwebtoken": "^9.0.3",
-        "mongoose": "^9.12.0"
-    },
-    "devDependencies": {
-        "nodemon": "^3.1.14"
-    }
+  "keywords": [],
+  "author": "Kristina Andjelkovic",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.12.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.13.0",
+    "nodemon": "^3.1.14"
+  }
 }
