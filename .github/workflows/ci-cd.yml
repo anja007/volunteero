@@ -105,3 +105,30 @@ jobs:
             backend/coverage
             frontend/coverage
           retention-days: 7
+
+  deploy:
+    name: deploy
+    needs: [lint, build, test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.FRONTEND_URL }}
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Prenos artefakta frontenda (brez ponovne gradnje)
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist
+      - name: Frontend → Netlify
+        run: npx --yes netlify-cli@17 deploy --dir=dist --prod --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      - name: Backend → Render (deploy hook)
+        run: curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
